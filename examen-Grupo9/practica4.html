@@ -159,7 +159,7 @@
                 this.neighbors=new Array(40);
             }
             createParticle(){
-                const geometry_sphere= new THREE.SphereGeometry();
+                const geometry_sphere= new THREE.SphereGeometry(1,0.05,0.025);
                 // geometry_sphere.vertex.push(new THREE.Vector(new THREE.Vec3(this.pos[0],this.pos[1,this.pos[2]])));
                 // geometry_sphere.vertices.push(new THREE.Vector3( 0, 0, 0));
                 // geometry_sphere.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
@@ -169,7 +169,7 @@
                 const particula=new THREE.Points(geometry_sphere, material);
                 particula.position.set(this.pos.x,this.pos.y,this.pos.z);
                 // particula.speed.set(this.vel.x,this.vel.y,this.vel.z);
-                scene.add(particula);
+                // scene.add(particula);
                 // console.log(particula.vel);
                 // planeta.position.set(10,10,0);
                 // planeta.userData.orbit=this.orbita;
@@ -203,7 +203,7 @@
         // 1.25;                       // Radius of Support
         var rsq=r*r;                                  // ... squared for performance stuff
 
-        var SIM_W=30;                             // The size of the world
+        var SIM_W=27;                             // The size of the world
         var bottom = 0; 
         var particles=[];
         var RAND_MAX=1298;
@@ -213,9 +213,14 @@
 
         function randab(a, b) { return a + (b-a)*rand01(); }
         function inicio(){
+            const geometry_sphere= new THREE.BoxBufferGeometry(1,0.05,0.025);
+                // geometry_sphere.vertex.push(new THREE.Vector(new THREE.Vec3(this.pos[0],this.pos[1,this.pos[2]])));
+                // geometry_sphere.vertices.push(new THREE.Vector3( 0, 0, 0));
+                // geometry_sphere.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+                // var textura_water= new THREE.TextureLoader().load('textures/textureWater.png')
+            const material= new THREE.PointsMaterial({size:1,color:0x0000ff});
+                
             
-            // const pos_old=[];
-            // const vertexVec=[];
             const w=SIM_W/4;
             for(let z=bottom+1;z<20;z+=r*.5){
                 for(let y=bottom+1;y<20;y+=r*.5){
@@ -235,9 +240,26 @@
                         var pos_old= new Vec3(pos.x+al.x,pos.y+al.y,pos.z+al.z);
                         var p=new Particle(pos,pos_old,new Vec3(0,0,0),new Vec3(0,0,0),0,0,0,0,0,1.,0,[]);
                         // var 
-                        var pp=p.createParticle();
-                        // scene.add(pp);
-                        particles.push(pp);
+                        var particula= new THREE.Points(geometry_sphere, material);
+                        particula.position.set(p.pos.x,p.pos.y,p.pos.z);
+                        particula.userData.speed=p.vel;
+                        particula.userData.pos_old=p.pos_old;
+                        particula.userData.pos=p.pos;
+                        particula.userData.force=p.force;
+                        particula.userData.mass=p.mas;
+                        particula.userData.rho=p.rho;
+                        particula.userData.rho_near=p.rho_near;
+                        particula.userData.press=p.press;
+                        particula.userData.press_near=p.press_near;
+                        particula.userData.sigma=p.sigma;
+                        particula.userData.beta=p.beta;
+                        particula.userData.neighbors=[];
+                        scene.add(particula);
+                        particles.push(particula);
+
+                        // var material12= new THREE.PointsMaterial({size:1,color:0x0000ff});
+                        // var mesh=new THREE.InstancedMesh( pp, material12, particles.length );
+                        // scene.add(mesh);
                         // console.log(pos_old);
                         // vertexVec.push(new Vec3(x,y,z));
                         // vertices=[];
@@ -268,239 +290,16 @@
                     }
                 }
             }
-            // console.log(particles);
-        // const p=new Particle();
-        // const pp=p.createParticle();
-        // scene.add(pp);
-        // for(let i=0;i<pos_old.length;i++){
-
+            
+            // var geometrySpheres=THREE.BufferGeometryUtils.mergeBufferGeometries(particles);
+           
+           
+        console.log(particles.length);
+        
         }
-        // const p=new Particle();
-        // const pp=p.createParticle();
-        // scene.add(pp);
-        // }
+       
         inicio()
-        function run(){
-            for(let i=0;i<particles.length;++i){
-                particles[i].pos_old= particles[i].pos;
-                particles[i].pos += particles[i].vel;
-
-                particles[i].pos += particles[i].force;
-
-                particles[i].force= new Vec3(0,-G,0);
-
-                particles[i].vel= particles[i].pos - particles[i].pos_old ;
-
-                var max_vel=4.0;
-                var vel_mag=particles[i].vel * particles[i].vel;
-
-
-                if(vel_mag > max_vel*max_vel){
-                    particles[i].vel = particles[i].vel * .5;
-                }
-
-                if(particles[i].pos.x < -SIM_W) particles[i].force.x -= (particles[i].pos.x - -SIM_W) / 8;
-                if(particles[i].pos.x >  SIM_W) particles[i].force.x -= (particles[i].pos.x - SIM_W) / 8;
-                if(particles[i].pos.y < bottom) particles[i].force.y -= (particles[i].pos.y - bottom) / 8;
-                if(particles[i].pos.y > SIM_W*2)particles[i].force.y -= (particles[i].pos.y - SIM_W*2) / 8;
-                particles[i].rho = particles[i].rho_near = 0;
-                particles[i].neighbors=[];
-
-            }
-            // for(let i=0; i < particles.length; ++i)
-            // {
-            //     particles[i].rho = particles[i].rho_near = 0;
-            //     var d=0,dn=0;
-
-            //     for(let j=0; j < particles.length; ++j){
-            //         for(let k=0; k < particles.length;++k){
-            //             if(j>=i & k>=j ) continue;
-
-            //             var rijk=particles[j].pos - particles[i].pos - particles[k].pos;
-            //             var rijk_len2=rijk * rijk;
-            //             if(rijk_len2 < rsq)
-            //             {
-                            
-            //                 var rijk_len = sqrt(rijk_len2);
-
-                            
-            //                 var q = 1 - rij_len / r;
-            //                 var q2 = q*q;
-            //                 var q3 = q2*q;
-
-            //                 d += q2;
-            //                 dn += q3;
-
-            //                 // Accumulate on the neighbor
-            //                 particles[j].rho += q2;
-            //                 particles[j].rho_near += q3;
-
-            //                 // Set up the neighbor list for faster access later.
-            //                 n=new Neighbor();
-            //                 n.i = i; n.j = j;
-            //                 n.q = q; n.q2 = q2;              
-            //                 particles[i].neighbors.push_back(n);
-            //             }
-            //         }
-                    
-            //     }
-            //     particles[i].rho+= d;
-            //     particles[i].rho_near+= dn;
-            // }
-
-            // for(let i=0;i<particles.lenght;++i){
-            //     particles[i].press = k * (particles[i].rho - rest_density);
-            //     particles[i].press_near = k_near * particles[i].rho_near;
-            // }
-            // //--------POSIBLE ERROR-----
-            // for(let i=0;i< particles.lenght;++i){
-            //     dx= Vec3();
-
-            //     ncount= particles[i].neighbors.lenght;
-            //     for(let ni=0;ni< ncount;++ni){
-            //         var n=new Neighbor();
-            //         var n=particles[i].neighbors[ni];
-            //         var j=n.j;
-            //         var q=n.q;
-            //         var q2= n.q2;
-            //         rijk=particles[j].pos - particles[i].pos ;
-
-            //         dm=(particles[i].press + particles[j].press )*q + (particles[i].press_near+ particles[j].press_near)*q2;
-
-            //         dw=rijk.normal()*dm;
-            //         dX +=dw;
-            //         particles[j].force+=dw;
-            //     }
-            //     particles[i].force -= dX
-            // }
-            // for(let i=0; i < particles.length; ++i){
-            //     for(let ni=0; ni < particles[i].neighbors.lenght; ++ni){
-            //         var n = particles[i].neighbors[ni];
-            //         var rijk = particles[n.j].pos - particles[i].pos ;
-
-            //     }
-            // }
-        }
-        // const pos=new Vec3(1,1,1);
-        // const rand=new Vec3(rand01(),rand01(),rand01());
-        // const pos_old=pos + 0.001 * rand;
-        // const force=new Vec3(0,0,0);
-        // const velocidad=new Vec3(0,0,0);
-        // const sigma=.1;
-        // const beta=0.0;
-        // const p=new Particle(pos,pos_old,velocidad,force,0,0,0,0,0,sigma,beta,[]);
-        //             // (pos,pos_old,velocidad,force,0,0,0,0,0,sigma,beta,[]);
-        // const pp=p.createParticle();
-        //             // scene.add(pp);
-        // particles.push(pp);
-        // console.log(pp);
         
-
-        // class Planeta{
-        //     constructor(nombrePlaneta,radio,orbita,velocidad,texturas){
-        //         this.nombrePlaneta=nombrePlaneta;
-        //         this.radio=radio;
-        //         this.orbita=orbita;
-        //         this.velocidad=velocidad;
-        //         this.texturas=texturas;
-                
-        //     }
-        //     crearPlaneta(){
-        //         var geometry_sphere= new  THREE.SphereGeometry(this.radio, 32, 16);
-        //         var textura_planeta= new THREE.TextureLoader().load(this.texturas)
-        //         var mat = new THREE.MeshBasicMaterial({map: textura_planeta});//wireframe: true
-        //         var planeta=new THREE.Mesh(geometry_sphere, mat);
-        //         // planeta.position.set(10,10,0);
-        //         planeta.userData.orbit=this.orbita;
-        //         planeta.userData.speed=this.velocidad;
-        //         return planeta;
-        //     }
-        //     moveinOrbit(){
-        //         // const shape = new THREE.Shape();
-        //         // shape.moveTo(this.orbita, 0);
-        //         // shape.absarc(0, 0, this.orbita, 0, 2 * Math.PI, false);
-        //         // console.log(shape);
-        //         // var spacedPoints =new THREE.ShapeGeometry(shape,128);
-        //         const curva=new THREE.EllipseCurve( 0,0 , this.orbita,this.orbita,0,2 * Math.PI,false,0);
-        //         const points=curva.getPoints(128);
-        //         var spacedPoints=  new THREE.BufferGeometry().setFromPoints( points );
-        //         // var spacedPoints = new THREE.BufferGeometry().setFromPoints(shape,128);
-        //         spacedPoints.rotateX(THREE.Math.degToRad(-90));
-        //         var orbit = new THREE.Line(spacedPoints, new THREE.LineBasicMaterial({
-        //         color: 0xd2cbc4
-        //         }));
-        //         return orbit;
-        //     }
-        // }
-       
-        //posn=i+5*-2
-        //posx=posn*4
-        //posy=0.25        
-        //posz=15
-       
-        // var planets=[];
-        // var timestamp=0;
-        // var scaleVector = new THREE.Vector3();
-        // var texturas_array=['textures/mercurioMap.jpg','textures/venus.jpg','textures/tierra.jpg','textures/marte.jpg','textures/jupiter.jpg','textures/saturno.jpg','textures/urano.jpg','textures/neptuno.jpg','textures/sol.png'];
-        // //PLANETA Mercurio
-        // const p1= new Planeta("Mercurio",3,25,4.5,texturas_array[0]);
-        // const pp1 = p1.crearPlaneta();
-        // scene.add(pp1);
-        // scene.add(p1.moveinOrbit());
-        // planets.push(pp1);
-        
-        // //PLANETA Venus
-        // const p2= new Planeta("Venus",3.5,35,4.3,texturas_array[1]);
-        // const pp2 = p2.crearPlaneta();
-        // scene.add(pp2);
-        // scene.add(p2.moveinOrbit());
-        // planets.push(pp2);
-        // //PLANETA Tierra 
-        // const p3= new Planeta("Tierra",4,45,3.7,texturas_array[2]);
-        // const pp3= p3.crearPlaneta();
-        // scene.add(pp3);
-        // scene.add(p3.moveinOrbit());
-        // planets.push(pp3);
-        // //PLANETA Marte
-        // const p4= new Planeta("Marte",3.6,55,2,texturas_array[3]);
-        // const pp4=p4.crearPlaneta(); 
-        // scene.add(pp4);
-        // scene.add(p4.moveinOrbit());
-        // planets.push(pp4);
-        // //PLANETA Jupiter
-        // const p5= new Planeta("Jupiter",5,65,0.9,texturas_array[4]);
-        // const pp5=p5.crearPlaneta(); 
-        // scene.add(pp5);
-        // scene.add(p5.moveinOrbit());
-        // planets.push(pp5);
-        // //PLANETA Saturno
-        // const p6= new Planeta("Saturno",5.5,75,0.7,texturas_array[5]);
-        // const pp6=p6.crearPlaneta(); 
-        // scene.add(pp6);
-        // scene.add(p6.moveinOrbit());
-        // planets.push(pp6);
-        // //PLANETA Urano
-        // const p7= new Planeta("Urano",4.4,85,0.5,texturas_array[6]);
-        // const pp7=p7.crearPlaneta(); 
-        // scene.add(pp7);
-        // scene.add(p7.moveinOrbit());
-        // planets.push(pp7);
-        // //PLANETA Neptuno
-        // const p8= new Planeta("Neptuno",4.8,95,0.3,texturas_array[7]);
-        // const pp8=p8.crearPlaneta(); 
-        // scene.add(pp8);
-        // scene.add(p8.moveinOrbit());
-        // planets.push(pp8);
-        // // console.log(planets[0]);
-        // // console.log(planets[1]);
-        // // console.log(planets[2]);
-        // // console.log(planets[3]);
-        // //Sol
-        // var materialSun= new THREE.TextureLoader().load(texturas_array[8]);
-        // var sun = new THREE.Mesh(new THREE.SphereGeometry(10, 32, 16), new THREE.MeshBasicMaterial({map: materialSun}));
-        // scene.add(sun);
-
-       
         
         ////////////////////////////////////////////////////////////
         // HemisphereLight light ///////////////////////////////////
@@ -517,54 +316,55 @@
         ////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////
         // PISO
-        const groundGeometry = new THREE.PlaneGeometry( 65, 65, 10, 10 );
+        const groundGeometry = new THREE.PlaneGeometry( SIM_W*2 + 5, SIM_W*2 + 5, 10, 10 );
         const groundMaterial = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
         const ground = new THREE.Mesh( groundGeometry, groundMaterial );
         ground.rotation.x = Math.PI * - 0.5;
         ground.position.y=-2;
         scene.add( ground );
         // PARED
-        const cubeGeometry1 = new THREE.PlaneGeometry( 65, 65, 10, 10 );
-        const groundMaterial1 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
-        const pared1 = new THREE.Mesh( cubeGeometry1, groundMaterial1 );
+        // const cubeGeometry1 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
+        // const groundMaterial1 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
+        const pared1 = new THREE.Mesh( groundGeometry, groundMaterial );
         pared1.rotation.z = Math.PI /2;
-        pared1.position.z=-32.5;
-        pared1.position.y=30;
+        pared1.position.z= - SIM_W - 2.8
+        // -32.5;
+        pared1.position.y=SIM_W;
         scene.add( pared1 );
 
-        const cubeGeometry2 = new THREE.PlaneGeometry( 65, 65, 10, 10 );
-        const groundMaterial2 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
-        const pared2 = new THREE.Mesh( cubeGeometry2, groundMaterial2 );
+        // const cubeGeometry2 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
+        // const groundMaterial2 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
+        const pared2 = new THREE.Mesh( groundGeometry, groundMaterial );
         pared2.rotation.z = Math.PI /2;
-        pared2.position.z=32.5;
-        pared2.position.y=30;
+        pared2.position.z=SIM_W + 2.5;
+        pared2.position.y=SIM_W;
         scene.add( pared2 );
 
-        const cubeGeometry3 = new THREE.PlaneGeometry( 65, 65, 10, 10 );
-        const groundMaterial3 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
-        const pared3 = new THREE.Mesh( cubeGeometry3, groundMaterial3 );
+        // const cubeGeometry3 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
+        // const groundMaterial3 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
+        const pared3 = new THREE.Mesh( groundGeometry, groundMaterial );
         pared3.rotation.y = Math.PI /2;
-        pared3.position.x=-32.5;
-        pared3.position.y=30;
+        pared3.position.x=-SIM_W - 2.5;
+        pared3.position.y=SIM_W;
         scene.add( pared3 );
         ////////////////////////////////////////////////////////////
         // DirectionalLight  ///////////////////////////////////////
-        const color = 0xFFFFFF;
-        const intensity = 0.5;
-        const light = new THREE.DirectionalLight(color, intensity);
-        light.position.set(5, 10, 10);
-        light.target.position.set(0, 0, 0);
-        scene.add(light);
-        scene.add(light.target);
+        // const color = 0xFFFFFF;
+        // const intensity = 0.5;
+        // const light = new THREE.DirectionalLight(color, intensity);
+        // light.position.set(5, 10, 10);
+        // light.target.position.set(0, 0, 0);
+        // scene.add(light);
+        // scene.add(light.target);
 
-        const helper = new THREE.DirectionalLightHelper(light);
-        scene.add(helper);
+        // const helper = new THREE.DirectionalLightHelper(light);
+        // scene.add(helper);
 
-        function updateLight() {
-            light.target.updateMatrixWorld();
-            helper.update();
-        }
-        updateLight();        
+        // function updateLight() {
+        //     light.target.updateMatrixWorld();
+        //     helper.update();
+        // }
+        // updateLight();        
         // gui
         // const gui = new GUI();
         // gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
@@ -573,10 +373,17 @@
         // makeXYZGUI(gui, light.target.position, 'target', updateLight); 
         //////////////////////////////////////////////////////////// 
         ////////////////////////////////////////////////////////////
-
+        // let pixelRatio = window.devicePixelRatio
+        // let AA = true
+        // if (pixelRatio > 1) {
+        // AA = false
+        // }
         
         // renderer //////////////////////////////////////////////////
-        var renderer = new THREE.WebGLRenderer();
+        var renderer = new THREE.WebGLRenderer({
+            antialias: false,
+            powerPreference: "high-performance",
+        });
         renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( renderer.domElement );
         renderer.render( scene, camera );
@@ -594,12 +401,12 @@
             var vecNeighnor=[];
             requestAnimationFrame(animate);
             particles.forEach(function(particula){
-                // var c1 = .1 * particula.userData.rho;
-                // var x1 = 20 * Math.abs(particula.userData.speed.x);
-                // var y1 = 20 * Math.abs(particula.userData.speed.y);
+                // var c1 = .3 + (.1 * particula.userData.rho);
+                // var x1 = .3+ (20 * Math.abs(particula.userData.speed.x));
+                // var y1 = .3 + (20 * Math.abs(particula.userData.speed.y));
                 // var z1= 20*Math.abs(particula.userData.speed.z);
                 // // var colorC=new THREE.Color("rgb(x1,y1,z1)")
-                // particula.material.color.setRGB(.3+x1,.3+y1,.3+c1);
+                // particula.material.color.setRGB(x1,y1,c1);
                 var velocidad=particula.userData.speed;
                 var old_pos=particula.userData.pos_old;
                 // var velocidad=particula.userData.speed;
@@ -747,6 +554,7 @@
                 particles[i].userData.force.z -=dx.z;
             }
             for(let i=0;i<particles.lenght;++i){
+                
                 var ncount=Object.keys(particles[i].userData.neighbors).length;
                 for(let ni=0;ni<ncount;++ni){
                     var n= particles[i].userData.neighbors[ni];
@@ -766,15 +574,7 @@
                     }
                 }
             }
-            // console.log(particles[1].neighbors);
-            // console.log(particles[0].neighbors);
-            // planets.forEach(function(planeta){
-            //     var scaleFactor = 8;
-            //     var scale = scaleVector.subVectors(planeta.position, camera.position).length() / scaleFactor;
-            //     var orbit = planeta.userData.orbit;
-            //     var speed = planeta.userData.speed;
-            //     planeta.position.x = Math.cos(timestamp * speed) * orbit;
-            //     planeta.position.z = Math.sin(timestamp * speed) * orbit;});
+            
             renderer.render( scene, camera );
         }
         animate();
