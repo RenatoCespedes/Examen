@@ -351,6 +351,12 @@
                         }
                     }
                 }
+            }else if(keycode==82){ // Restaura o borrar el fluido "r"
+                for(var i=0;particles.length;i++){
+                    scene.remove(particles.pop());
+                }
+            }else if(keycode==65){// agregael fluido "a"
+                inicio();   
             }
         }
         inicio()
