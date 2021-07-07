@@ -56,55 +56,6 @@
         // scene //////////////////////////////////////////////////
         var scene = new THREE.Scene();
 
-        // var texture_galaxy= new THREE.TextureLoader().load('textures/galaxy.png');
-        // scene.background =  new THREE.Color( 0xffffff );
-        // new THREE.TextureLoader().load('textures/galaxy.png');
-        
-        // const transformation = new THREE.Matrix4 () ;
-        // transformation.set (
-        // 1, 0, 0, 0,
-        // 0, 1, 0, 0,
-        // 0, 0, 1, 0,
-        // 0, 0, 0, 1
-        // );     
-        
-        // const transformation2 = new THREE.Matrix4 () ;
-        // transformation2.set (
-        // 1, 0, 0, 0,
-        // 1, 1, 0, 0,
-        // 1, 0, 1, 0,
-        // 1, 0, 0, 1
-        // );   
-
-
-        // var animate = function() {
-        // requestAnimationFrame( animate );
-        // mesh.geometry.applyMatrix4(transformation );
-        // renderer.render( scene , camera );
-        // }
-
-        // const new_transformation = transformation.multiply(transformation2);
-        // console.log(new_transformation);      
-        
-       
-
-        // objloader////////////////////////////////////////////////    
-        //////////////////////////////////////////////////////////// 
-        // const geometry = new THREE.SphereGeometry( 1, 64, 64 );
-        // const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-        // const sphere = new THREE.Mesh( geometry, material );
-        // sphere.position.set(0, 0,0);
-        // scene.add(sphere);
-
-
-
-        // const geometry1 = new THREE.SphereGeometry( 1, 64, 64 );
-        // const material1 = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-        // const sphere1 = new THREE.Mesh( geometry1, material1 );
-        // sphere1.position.set(20, 20,10);
-        // scene.add(sphere1);
-        
-
         ////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////
         class Vec3{
@@ -157,6 +108,7 @@
                 this.sigma=sigma;
                 this.beta=beta;
                 this.neighbors=new Array(40);
+                this.acc = new Vec3();
             }
             createParticle(meshP,mat){
                 // const geometry_sphere= new THREE.SphereGeometry(1,0.05,0.025);
@@ -171,8 +123,6 @@
                 // particula.speed.set(this.vel.x,this.vel.y,this.vel.z);
                 // scene.add(particula);
                 // console.log(particula.vel);
-                // planeta.position.set(10,10,0);
-                // planeta.userData.orbit=this.orbita;
                 particula.userData.speed=this.vel;
                 particula.userData.pos_old=this.pos_old;
                 particula.userData.pos=this.pos;
@@ -225,9 +175,10 @@
             ///texture.repeat.set( 0.05, 0.025 );
             const material= new THREE.PointsMaterial({size:1,map: texture});
 
-                
+            // Inicializar partículas
+            // Haremos un bloque de partículas con un ancho total de 1/4 de la pantalla.    
             
-            const w=SIM_W/4;    
+            const w=SIM_W/4;     
             for(let z=bottom+1;z<20;z+=r*.5){
                 for(let y=bottom+1;y<20;y+=r*.5){
                     for(let x=-w;x<=w;x+=r*.5){
@@ -300,7 +251,7 @@
             // var geometrySpheres=THREE.BufferGeometryUtils.mergeBufferGeometries(particles);
            
            
-        console.log(particles.length);
+            console.log(particles.length);
         
         }
        //Aparentemente crea un gas en vez de añadir particulas de agua
@@ -362,54 +313,16 @@
         inicio()
         
         
+
         ////////////////////////////////////////////////////////////
         // HemisphereLight light ///////////////////////////////////
         const skyColor = 0x001e0f;  // light blue
         const groundColor = 0x59340B;  // black
         const hemisphere_light = new THREE.HemisphereLight(skyColor, groundColor, 0.5);
         scene.add(hemisphere_light);  
-        //Load background texture
-        const loader = new THREE.TextureLoader();
-        loader.load('https://images.pexels.com/photos/1205301/pexels-photo-1205301.jpeg' , function(texture)
-        {
-            scene.background = texture;  
-        });      
-        ////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////
-        // PISO
-        const groundGeometry = new THREE.PlaneGeometry( SIM_W*2 + 5, SIM_W*2 + 5, 10, 10 );
-        const groundMaterial = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
-        const ground = new THREE.Mesh( groundGeometry, groundMaterial );
-        ground.rotation.x = Math.PI * - 0.5;
-        ground.position.y=-2;
-        scene.add( ground );
-        // PARED
-        // const cubeGeometry1 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
-        // const groundMaterial1 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
-        const pared1 = new THREE.Mesh( groundGeometry, groundMaterial );
-        pared1.rotation.z = Math.PI /2;
-        pared1.position.z= - SIM_W - 2.8
-        // -32.5;
-        pared1.position.y=SIM_W;
-        scene.add( pared1 );
-
-        // const cubeGeometry2 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
-        // const groundMaterial2 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
-        const pared2 = new THREE.Mesh( groundGeometry, groundMaterial );
-        pared2.rotation.z = Math.PI /2;
-        pared2.position.z=SIM_W + 2.5;
-        pared2.position.y=SIM_W;
-        scene.add( pared2 );
-
-        // const cubeGeometry3 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
-        // const groundMaterial3 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
-        const pared3 = new THREE.Mesh( groundGeometry, groundMaterial );
-        pared3.rotation.y = Math.PI /2;
-        pared3.position.x=-SIM_W - 2.5;
-        pared3.position.y=SIM_W;
-        scene.add( pared3 );
         ////////////////////////////////////////////////////////////
         // DirectionalLight  ///////////////////////////////////////
+
         // const color = 0xFFFFFF;
         // const intensity = 0.5;
         // const light = new THREE.DirectionalLight(color, intensity);
@@ -640,6 +553,46 @@
         }
         animate();
         
+        //Load background texture
+        const loader = new THREE.TextureLoader();
+        loader.load('https://images.pexels.com/photos/1205301/pexels-photo-1205301.jpeg' , function(texture)
+        {
+            scene.background = texture;  
+        });      
+        ////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////
+        // PISO
+        const groundGeometry = new THREE.PlaneGeometry( SIM_W*2 + 5, SIM_W*2 + 5, 10, 10 );
+        const groundMaterial = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
+        const ground = new THREE.Mesh( groundGeometry, groundMaterial );
+        ground.rotation.x = Math.PI * - 0.5;
+        ground.position.y=-2;
+        scene.add( ground );
+        // PARED
+        // const cubeGeometry1 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
+        // const groundMaterial1 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
+        const pared1 = new THREE.Mesh( groundGeometry, groundMaterial );
+        pared1.rotation.z = Math.PI /2;
+        pared1.position.z= - SIM_W - 2.8
+        // -32.5;
+        pared1.position.y=SIM_W;
+        scene.add( pared1 );
+
+        // const cubeGeometry2 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
+        // const groundMaterial2 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
+        const pared2 = new THREE.Mesh( groundGeometry, groundMaterial );
+        pared2.rotation.z = Math.PI /2;
+        pared2.position.z=SIM_W + 2.5;
+        pared2.position.y=SIM_W;
+        scene.add( pared2 );
+
+        // const cubeGeometry3 = new THREE.PlaneGeometry( SIM_W*2, SIM_W*2, 10, 10 );
+        // const groundMaterial3 = new THREE.MeshBasicMaterial( { color: 0xcccccc, transparent: true, opacity: 0.5} );
+        const pared3 = new THREE.Mesh( groundGeometry, groundMaterial );
+        pared3.rotation.y = Math.PI /2;
+        pared3.position.x=-SIM_W - 2.5;
+        pared3.position.y=SIM_W;
+        scene.add( pared3 );
 
         // redimensioar  /////////////////////////////////////////////
         window.addEventListener('resize', redimensionar);
