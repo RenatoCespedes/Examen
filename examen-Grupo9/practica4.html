@@ -218,10 +218,16 @@
                 // geometry_sphere.vertices.push(new THREE.Vector3( 0, 0, 0));
                 // geometry_sphere.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
                 // var textura_water= new THREE.TextureLoader().load('textures/textureWater.png')
-            const material= new THREE.PointsMaterial({size:1,color:0x0000ff});
+            const texture = new THREE.TextureLoader().load('textures/agua.jpg');
+            
+            ///texture.wrapS = THREE.RepeatWrapping;
+            ///texture.wrapT = THREE.RepeatWrapping;
+            ///texture.repeat.set( 0.05, 0.025 );
+            const material= new THREE.PointsMaterial({size:1,map: texture});
+
                 
             
-            const w=SIM_W/4;
+            const w=SIM_W/4;    
             for(let z=bottom+1;z<20;z+=r*.5){
                 for(let y=bottom+1;y<20;y+=r*.5){
                     for(let x=-w;x<=w;x+=r*.5){
@@ -309,7 +315,8 @@
                 // geometry_sphere.vertices.push(new THREE.Vector3( 0, 0, 0));
                 // geometry_sphere.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
                 // var textura_water= new THREE.TextureLoader().load('textures/textureWater.png')
-                const material= new THREE.PointsMaterial({size:1,color:0x00f0ff});
+                const texture1 = new THREE.TextureLoader().load('textures/gas.jpg');
+                const material= new THREE.PointsMaterial({size:1,map:texture1});
                 var contar=0;
                 
                 for(let z=-radius;z<=radius;z+=r*.5){
