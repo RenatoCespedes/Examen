@@ -158,15 +158,15 @@
                 this.beta=beta;
                 this.neighbors=new Array(40);
             }
-            createParticle(){
-                const geometry_sphere= new THREE.SphereGeometry(1,0.05,0.025);
+            createParticle(meshP,mat){
+                // const geometry_sphere= new THREE.SphereGeometry(1,0.05,0.025);
                 // geometry_sphere.vertex.push(new THREE.Vector(new THREE.Vec3(this.pos[0],this.pos[1,this.pos[2]])));
                 // geometry_sphere.vertices.push(new THREE.Vector3( 0, 0, 0));
                 // geometry_sphere.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
                 // var textura_water= new THREE.TextureLoader().load('textures/textureWater.png')
-                const material= new THREE.PointsMaterial({size:1,color:0x0000ff});
+                // const material= new THREE.PointsMaterial({size:1,color:0x0000ff});
                 
-                const particula=new THREE.Points(geometry_sphere, material);
+                const particula=new THREE.Points(meshP, mat);
                 particula.position.set(this.pos.x,this.pos.y,this.pos.z);
                 // particula.speed.set(this.vel.x,this.vel.y,this.vel.z);
                 // scene.add(particula);
@@ -239,23 +239,23 @@
                         var pos=new Vec3(x,y,z);
                         var pos_old= new Vec3(pos.x+al.x,pos.y+al.y,pos.z+al.z);
                         var p=new Particle(pos,pos_old,new Vec3(0,0,0),new Vec3(0,0,0),0,0,0,0,0,1.,0,[]);
-                        // var 
-                        var particula= new THREE.Points(geometry_sphere, material);
-                        particula.position.set(p.pos.x,p.pos.y,p.pos.z);
-                        particula.userData.speed=p.vel;
-                        particula.userData.pos_old=p.pos_old;
-                        particula.userData.pos=p.pos;
-                        particula.userData.force=p.force;
-                        particula.userData.mass=p.mas;
-                        particula.userData.rho=p.rho;
-                        particula.userData.rho_near=p.rho_near;
-                        particula.userData.press=p.press;
-                        particula.userData.press_near=p.press_near;
-                        particula.userData.sigma=p.sigma;
-                        particula.userData.beta=p.beta;
-                        particula.userData.neighbors=[];
-                        scene.add(particula);
-                        particles.push(particula);
+                        var pp=p.createParticle(geometry_sphere,material);
+                        // var particula= new THREE.Points(geometry_sphere, material);
+                        // particula.position.set(p.pos.x,p.pos.y,p.pos.z);
+                        // particula.userData.speed=p.vel;
+                        // particula.userData.pos_old=p.pos_old;
+                        // particula.userData.pos=p.pos;
+                        // particula.userData.force=p.force;
+                        // particula.userData.mass=p.mas;
+                        // particula.userData.rho=p.rho;
+                        // particula.userData.rho_near=p.rho_near;
+                        // particula.userData.press=p.press;
+                        // particula.userData.press_near=p.press_near;
+                        // particula.userData.sigma=p.sigma;
+                        // particula.userData.beta=p.beta;
+                        // particula.userData.neighbors=[];
+                        scene.add(pp);
+                        particles.push(pp);
 
                         // var material12= new THREE.PointsMaterial({size:1,color:0x0000ff});
                         // var mesh=new THREE.InstancedMesh( pp, material12, particles.length );
@@ -297,7 +297,55 @@
         console.log(particles.length);
         
         }
-       
+       //Aparentemente crea un gas en vez de añadir particulas de agua
+        document.addEventListener("keydown", onDocumentKeyDown,false);
+        function onDocumentKeyDown(event){
+            var keycode=event.which;
+            var radius=SIM_W/8;
+            // console.log(keycode);
+            if(keycode==32){
+                const geometry_sphere= new THREE.BoxBufferGeometry(1,0.05,0.025);
+                // geometry_sphere.vertex.push(new THREE.Vector(new THREE.Vec3(this.pos[0],this.pos[1,this.pos[2]])));
+                // geometry_sphere.vertices.push(new THREE.Vector3( 0, 0, 0));
+                // geometry_sphere.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+                // var textura_water= new THREE.TextureLoader().load('textures/textureWater.png')
+                const material= new THREE.PointsMaterial({size:1,color:0x00f0ff});
+                var contar=0;
+                
+                for(let z=-radius;z<=radius;z+=r*.5){
+                    for(let y=SIM_W*2 -radius;y<=SIM_W*2+radius;y+=r*.5){
+                        for(let x=-radius; x<=radius; x+=r*.5){
+                            // var z=0;
+                            var al=new Vec3(rand01(),rand01(),rand01());
+                            al=al.multFloatClass(0.001,al);
+                            var pos=new Vec3(x+al.x,y+al.y,z+al.z)
+                            var pos_old= new Vec3(x+al.x,y+al.y,z+al.z);
+                            var force=new Vec3(0,0,0);
+                            var sigma=3.;
+                            var beta=4.;
+                            var p=new Particle(pos,pos_old,new Vec3(0,0,0),new Vec3(0,0,0),0,0,0,0,0,3.,4.,[]);
+                            // var 
+                            
+                            // const SIMW2=new Vec3(0,SIM_W*2,0);
+                            const medida=new Vec3(p.pos.x- 0,
+                                                p.pos.y- SIM_W*2,
+                                                p.pos.z- 0);
+                            const len2M=medida.x*medida.x + medida.y*medida.y + medida.z*medida.z;
+                            // console.log(len2M);
+                            contar+=1;
+                            if(len2M<radius*radius){
+                                var pp1=p.createParticle(geometry_sphere,material);
+                                // pp1.position.set(p.pos.x,0,p.pos.z);
+                                scene.add(pp1);
+                                particles.push(pp1);
+                                // contador=0;
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
         inicio()
         
         
